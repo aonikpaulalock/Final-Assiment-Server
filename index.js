@@ -6,7 +6,7 @@
 //https://demo.templatetrend.com/magento/MAG777/MAG750/
 //https://demo.templatetrend.com/magento/MAG777/MAG750/
 
-const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express')
 const cors = require('cors');
 const app = express()
@@ -29,6 +29,7 @@ async function run() {
   try {
     await client.connect()
     const toolsCollection = client.db('toolsMenu').collection('tools');
+    const orderCollection = client.db('toolsMenu').collection('orders');
 
 
     // Get All Tools
@@ -43,6 +44,14 @@ async function run() {
       const quary = { _id: ObjectId(id) }
       const tools = await toolsCollection.findOne(quary);
       res.send(tools)
+    })
+
+    // Order
+    app.post("/orders", async (req, res) => {
+      const order = req.body;
+      const query = { email: order.email }
+      const result = await orderCollection.insertOne(order);
+      console.log(result);
     })
 
   }
