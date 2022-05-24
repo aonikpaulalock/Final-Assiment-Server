@@ -30,7 +30,7 @@ async function run() {
     await client.connect()
     const toolsCollection = client.db('toolsMenu').collection('tools');
     const orderCollection = client.db('toolsMenu').collection('orders');
-
+    const userCollection = client.db('toolsMenu').collection('users');
 
     // Get All Tools
     app.get("/tools", async (req, res) => {
@@ -59,6 +59,19 @@ async function run() {
       const email = req.query.email;
       const filter = { email: email }
       const result = await orderCollection.find(filter).toArray();
+      res.send(result)
+    })
+
+    // Load upadate User
+    app.put("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result)
     })
 
