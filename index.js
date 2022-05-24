@@ -78,6 +78,20 @@ async function run() {
       res.send(result)
     })
 
+    // Delete User
+    app.delete('/tools/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await toolsCollection.deleteOne(filter);
+      res.send(result);
+    })
+
+    // Manage Products
+    app.get("/tools", async (req, res) => {
+      const result = await toolsCollection.find().toArray();
+      res.send(result)
+    })
+
     // get Specific Tools
 
     app.get("/tools/:id", async (req, res) => {
