@@ -51,13 +51,28 @@ async function run() {
     const orderCollection = client.db('toolsMenu').collection('orders');
     const userCollection = client.db('toolsMenu').collection('users');
 
+    // Verify Admin
+    
+    const verifyAdmin = async (req, res, next) => {
+      const requester = req.decoded.email;
+      const requesterAccount = await userCollection.findOne({ email: requester });
+      if (requesterAccount.role === "admin") {
+        next();
+      }
+      else {
+        res.status(403).send({ message: 'forbidden' });
+      }
+    }
+
     // Get All Tools
+
     app.get("/tools", async (req, res) => {
       const result = await toolsCollection.find().toArray();
       res.send(result)
     })
 
     // get Specific Tools
+
     app.get("/tools/:id", async (req, res) => {
       const id = req.params.id;
       const quary = { _id: ObjectId(id) }
@@ -66,6 +81,7 @@ async function run() {
     })
 
     // Order
+
     app.post("/orders", async (req, res) => {
       const order = req.body;
       // const query = { email: order.email }
@@ -74,6 +90,7 @@ async function run() {
     })
 
     // Load Order
+
     app.get("/orders", verifyJWT, async (req, res) => {
       const email = req.query.email;
       const emailDecoded = req.decoded.email;
@@ -88,6 +105,7 @@ async function run() {
     })
 
     // Load upadate User
+
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
@@ -101,8 +119,20 @@ async function run() {
       res.send({ result, token })
     })
 
+    // Create Admin role
+    app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: 'admin' },
+      };
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+
+
     // Load All Users
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyJWT, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result)
     })
