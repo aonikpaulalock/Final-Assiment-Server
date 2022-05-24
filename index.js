@@ -29,7 +29,6 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
-  console.log(authHeader);
   if (!authHeader) {
     return res.status(401).send({ message: 'UnAuthorized access' });
   }
@@ -83,8 +82,8 @@ async function run() {
         const result = await orderCollection.find(filter).toArray();
         return res.send(result)
       }
-      else{
-        return res.status(403).send({message:"forbiden access"})
+      else {
+        return res.status(403).send({ message: "forbiden access" })
       }
     })
 
@@ -101,6 +100,13 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send({ result, token })
     })
+
+    // Load All Users
+    app.get("/users", async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result)
+    })
+
 
   }
   catch {
