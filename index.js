@@ -125,6 +125,12 @@ async function run() {
       }
     })
 
+    // Load All Orders
+    app.get("/order", async (req, res) => {
+      const result = await orderCollection.find().toArray()
+      res.send(result)
+    })
+
     // Load upadate User
 
     app.put("/users/:email", async (req, res) => {
