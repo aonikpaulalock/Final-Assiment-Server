@@ -52,7 +52,7 @@ async function run() {
     const userCollection = client.db('toolsMenu').collection('users');
 
     // Verify Admin
-    
+
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
       const requesterAccount = await userCollection.findOne({ email: requester });
@@ -68,6 +68,13 @@ async function run() {
 
     app.get("/tools", async (req, res) => {
       const result = await toolsCollection.find().toArray();
+      res.send(result)
+    })
+
+    // Add Users
+    app.post("/tools", async (req, res) => {
+      const tools = req.body;
+      const result = await toolsCollection.insertOne(tools)
       res.send(result)
     })
 
@@ -130,6 +137,14 @@ async function run() {
       res.send(result);
     })
 
+
+    // Check admin or not
+    app.get('/admin/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === 'admin';
+      res.send({ admin: isAdmin })
+    })
 
     // Load All Users
     app.get("/users", verifyJWT, async (req, res) => {
