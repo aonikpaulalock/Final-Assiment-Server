@@ -42,14 +42,14 @@ function verifyJWT(req, res, next) {
   });
 }
 
-
-
 async function run() {
   try {
     await client.connect()
     const toolsCollection = client.db('toolsMenu').collection('tools');
     const orderCollection = client.db('toolsMenu').collection('orders');
     const userCollection = client.db('toolsMenu').collection('users');
+    const reviewCollection = client.db('toolsMenu').collection('reviews');
+    const profileCollection = client.db('toolsMenu').collection('profiles');
 
     // Verify Admin
 
@@ -169,6 +169,28 @@ async function run() {
     // Load All Users
     app.get("/users", verifyJWT, async (req, res) => {
       const result = await userCollection.find().toArray();
+      res.send(result)
+    })
+
+    // get reviews data
+    app.get("/reviews", async (req, res) => {
+      const result = await reviewCollection.find().toArray();
+      res.send(result)
+    })
+
+    // Post reviews data
+    app.post("/reviews", async (req, res) => {
+      const reviews = req.body;
+      const result = await reviewCollection.insertOne(reviews)
+      res.send(result)
+    })
+
+
+
+    // profile Collection
+    app.post("/profiles", async (req, res) => {
+      const profiles = req.body;
+      const result = await reviewCollection.insertOne(profiles)
       res.send(result)
     })
 
