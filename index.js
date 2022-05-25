@@ -13,6 +13,7 @@ const app = express()
 const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const port = process.env.PORT || 5000
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Middletare
 app.use(cors());
@@ -50,7 +51,7 @@ async function run() {
     const userCollection = client.db('toolsMenu').collection('users');
     const reviewCollection = client.db('toolsMenu').collection('reviews');
     const profileCollection = client.db('toolsMenu').collection('profiles');
-
+    const paymentCollection = client.db('toolsMenu').collection('payments');
     // Verify Admin
 
     const verifyAdmin = async (req, res, next) => {
@@ -63,6 +64,38 @@ async function run() {
         res.status(403).send({ message: 'forbidden' });
       }
     }
+
+
+    // Payment api
+    app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+      const service = req.body;
+      const price = service.price;
+      const amount = price * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: ['card']
+      });
+      res.send({ clientSecret: paymentIntent.client_secret })
+    });
+
+  // Payment Update
+  app.patch('/orders/:id', verifyJWT, async(req, res) =>{
+    const id  = req.params.id;
+    const payment = req.body;
+    const filter = {_id: ObjectId(id)};
+    const updatedDoc = {
+      $set: {
+        paid: true,
+        transactionId: payment.transactionId
+      }
+    }
+
+    const result = await paymentCollection.insertOne(payment);
+    const updatedOrder = await orderCollection.updateOne(filter, updatedDoc);
+    res.send(updatedOrder);
+  })
+
 
     // Get All Tools
 
@@ -127,7 +160,7 @@ async function run() {
 
 
     // Load Specific Id Api
-    app.get("/orders/:id",verifyJWT, async (req, res) => {
+    app.get("/orders/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) }
       const result = await orderCollection.findOne(filter)
@@ -140,6 +173,14 @@ async function run() {
       const result = await orderCollection.find().toArray()
       res.send(result)
     })
+
+    // Delete Orders
+       app.delete('/orders/:id',verifyJWT, async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const result = await orderCollection.deleteOne(filter);
+        res.send(result);
+      })
 
     // Load upadate User
 
@@ -177,7 +218,7 @@ async function run() {
     })
 
     // Load All Users
-    app.get("/users",verifyJWT, async(req, res) => {
+    app.get("/users", verifyJWT, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result)
     })
