@@ -125,6 +125,16 @@ async function run() {
       }
     })
 
+
+    // Load Specific Id Api
+    app.get("/orders/:id",verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) }
+      const result = await orderCollection.findOne(filter)
+      res.send(result)
+    })
+
+
     // Load All Orders
     app.get("/order", async (req, res) => {
       const result = await orderCollection.find().toArray()
@@ -167,7 +177,7 @@ async function run() {
     })
 
     // Load All Users
-    app.get("/users", verifyJWT, async (req, res) => {
+    app.get("/users",verifyJWT, async(req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result)
     })
@@ -190,7 +200,7 @@ async function run() {
     // profile Collection
     app.post("/profiles", async (req, res) => {
       const profiles = req.body;
-      const result = await reviewCollection.insertOne(profiles)
+      const result = await profileCollection.insertOne(profiles)
       res.send(result)
     })
 
