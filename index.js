@@ -1,11 +1,3 @@
-// https://redparts.woocommerce.themeforest.scompiler.ru/theme/?redparts_demo_options=dir%3Acurrent%2Cheader_layout%3Aspaceship%2Ctheme_scheme%3Acurrent%2Cdesktop_use_predefined_variant%3Ayes%2Cdesktop_spaceship_variant%
-
-
-// https://wpbingosite.com/wordpress/vitic/home-page-7/
-// NewSelter
-//https://demo.templatetrend.com/magento/MAG777/MAG750/
-//https://demo.templatetrend.com/magento/MAG777/MAG750/
-
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express')
 const cors = require('cors');
