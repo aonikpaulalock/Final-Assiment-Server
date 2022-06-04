@@ -58,7 +58,7 @@ async function run() {
     }
 
 
-    // Payment api
+    // Payment Api and Verify
     app.post('/create-payment-intent', verifyJWT, async (req, res) => {
       const service = req.body;
       const price = service.price;
